@@ -38,6 +38,7 @@ Test Texas Instrument CC2640R2 launchpad for future research purpose.
 ## Features
 
  - serial_port.py display all available serial ports on the computer
+ - Push button0 and button1 on board to trigger hardware interupt and change led0 and led1 states
  - Output (device_unixtime, led0_state, led1_state) from CC2640R2 to UART
  - Store output data into file based database
  - Write and read data from internal flash

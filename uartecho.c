@@ -39,6 +39,7 @@
 /* Driver Header files */
 #include <ti/drivers/GPIO.h>
 #include <ti/drivers/UART.h>
+#include <ti/drivers/NVS.h>
 #include <ti/sysbios/hal/Seconds.h>
 
 /* Example/Board Header files */
@@ -74,15 +75,23 @@ void gpioButtonFxn1(uint_least8_t index)
  */
 void *mainThread(void *arg0)
 {
+    // UART params
     UART_Handle uart;
     UART_Params uartParams;
+    // NVS params
+    NVS_Handle nvsHandle;
+    NVS_Attrs regionAttrs;
+    NVS_Params nvsParams;
+    // led signals
     unsigned int ledPinValue0;
     unsigned int ledPinValue1;
+    // unix time
     UInt32 t;
 
     /* Call driver init functions */
     GPIO_init();
     UART_init();
+    NVS_init();
 
     /* Configure the LED and button pins */
     GPIO_setConfig(Board_GPIO_LED0, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
@@ -117,6 +126,21 @@ void *mainThread(void *arg0)
         while (1);
     }
 
+    NVS_Params_init(&nvsParams);
+    nvsHandle = NVS_open(Board_NVSINTERNAL, &nvsParams);
+
+    if (nvsHandle == NULL) {
+        /* NVS_open() failed. */
+        while (1);
+    }
+
+    /*
+     * This will populate a NVS_Attrs structure with properties specific
+     * to a NVS_Handle such as region base address, region size,
+     * and sector size.
+     */
+    NVS_getAttrs(nvsHandle, &regionAttrs);
+
     /* set to today’s date in seconds since Jan 1, 1970 */
     Seconds_set(1597757956); // refer to https://www.epochconverter.com/
 
@@ -126,21 +150,28 @@ void *mainThread(void *arg0)
         t = Seconds_get();
         // output format: epoch_time, led0_state, led1_state
         // epoch time always 10 digits
-        char output[] = {'0','0','0','0','0', '0', '0', '0', '0', '0', ',', '0', ',', '0'};
+        char data[] = {'0','0','0','0','0', '0', '0', '0', '0', '0', ',', '0', ',', '0'};
         int i;
         for (i=0; i<10; i++){
-            output[9 - i] = t % 10 + '0';
+            data[9 - i] = t % 10 + '0';
             t /= 10;
         }
 
         // read leds
         ledPinValue0 = GPIO_read(Board_GPIO_LED0);
         ledPinValue1 = GPIO_read(Board_GPIO_LED1);
-        output[11] = ledPinValue0 ? '1' : '0';
-        output[13] = ledPinValue1 ? '1' : '0';
+        data[11] = ledPinValue0 ? '1' : '0';
+        data[13] = ledPinValue1 ? '1' : '0';
+
+        // write and read from flash
+        NVS_write(nvsHandle, 0, (void *) data, sizeof(data),
+            NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+        // Buffer placed in RAM to hold bytes read from non-volatile storage.
+        char buffer[14];
+        NVS_read(nvsHandle, 0, (void *) buffer, sizeof(buffer));
 
         // write to serial
-        UART_write(uart, output, sizeof(output));
+        UART_write(uart, buffer, sizeof(buffer));
 
         sleep(1);
     }

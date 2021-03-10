@@ -10,6 +10,3 @@ Based Example: uartecho
 MSP430FR6989
 Environment: CCS 10.1.1
 Based Example: msp430fr69xx_euscia0_uart_02
-
-Note:
-*MSP430 TX is still not working correctly.

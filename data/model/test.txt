@@ -1,0 +1,91 @@
+import torch
+
+import struct
+
+def iq31_float(num):
+    if num>1:
+        num = 1
+    int_ = num * (2**31)
+    int_ = int_ if int_ > 0 else int_ + (1 << 32)
+    bin_ = format(int(int_), '08b')
+    return struct.unpack('!f',struct.pack('!I', int(bin_, 2)))[0]
+
+def float_int16(num):
+    #return num
+    return int(num * (2**15))
+
+def print1dweight(weight,name):
+    data = "{"
+    for j in range(0,len(weight)):
+        data += str(float_int16(float(weight[j]))) + ","
+    data += "};"
+    file_write(name,data)
+
+def print2dweight(weight,name):
+    data = "{"
+    for i in range(0,len(weight)):
+        data += "\n\t{"
+        for j in range(0,len(weight[0])):
+            data += str(float_int16(float(weight[i][j]))) + ","
+        data += "},"
+    data += "\n};"
+    file_write(name,data)
+
+def print3dweight(weight,name):
+    data = "{"
+    for row in weight:
+        data += "\n\t{"
+        for col in row:
+            data += "\n\t\t{"
+            for c in col:
+                data += str(float_int16(float(c))) + ","
+            data += "},"
+        data += "\n\t},"
+    data += "\n};"
+    file_write(name,data)
+
+def print4dweight(weight,name):
+    data = "{"
+    for i in range(0,len(weight[0])):
+        data += "\n\t{"
+        for j in range(0,len(weight)):
+            data += "\n\t\t{"
+            for k in range(0,len(weight[0][0])):
+                data += "\n\t\t\t{"
+                for l in range(0,len(weight[0][0][0])):
+                    data += str(float_int16(float(weight[j][i][k][l]))) + ","
+                data += "},"
+            data += "\n\t\t},"
+        data += "\n\t},"
+    data += "\n};"
+    file_write(name,data)
+
+
+def file_write(filename,data):
+    f = open(filename, "w")
+    f.write(data)
+    f.close()
+
+
+
+#net_glob = torch.load("testdata/mnist_cnn_data_range_9_9435_sparsity_50.pt")
+#net_glob = torch.load("testdata/mnist_cnn_data_range_9_9421_sparsity_60.pt")
+#net_glob = torch.load("testdata/mnist_cnn_data_range_9_9343_sparsity_70.pt")
+#net_glob = torch.load("testdata/mnist_cnn_data_range_9_9394_sparsity_80.pt")
+net_glob = torch.load("testdata/mnist_cnn_data_range_9_9137_sparsity_90.pt")
+
+if __name__ == '__main__':
+    print4dweight(net_glob['conv1.weight'],'extraction/conv1_weight')
+    print1dweight(net_glob['conv1.bias'], 'extraction/conv1_bias')
+    print4dweight(net_glob['conv2.weight'], 'extraction/conv2_weight')
+    print1dweight(net_glob['conv2.bias'], 'extraction/conv2_bias')
+
+    print1dweight(net_glob['fc1.vector'], 'extraction/FC1_weight')
+    print1dweight(net_glob['fc1.bias'], 'extraction/FC1_bias')
+
+    print2dweight(net_glob['fc2.weight'], 'extraction/FC2_weight')
+    print1dweight(net_glob['fc2.bias'], 'extraction/FC2_bias')
+
+
+
+

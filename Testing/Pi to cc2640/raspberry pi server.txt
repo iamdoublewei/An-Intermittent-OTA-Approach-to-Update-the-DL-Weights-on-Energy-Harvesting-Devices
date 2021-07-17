@@ -1,0 +1,6 @@
+successful one: https://github.com/labapart/gattlib
+./examples/read_write/read_write F0:F8:F2:DA:2B:FF read f0001131-0451-4000-b000-000000000000
+./examples/read_write/read_write F0:F8:F2:DA:2B:FF write f0001131-0451-4000-b000-000000000000 0x31
+
+2021 7 21 update
+Now bleak also works on Pi

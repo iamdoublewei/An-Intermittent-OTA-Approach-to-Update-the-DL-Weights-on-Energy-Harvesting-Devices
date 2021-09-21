@@ -1,6 +1,7 @@
-# cc2640r2_init Overview
+# Overview
 
-Test Texas Instrument CC2640R2 launchpad for future research purpose.
+- Paper Title: Incremental OTA Update for Deep Learning Powered Energy Harvesting IoT Devices
+- Conference: DATE 2022
 
 
 ## Hardware Requirements

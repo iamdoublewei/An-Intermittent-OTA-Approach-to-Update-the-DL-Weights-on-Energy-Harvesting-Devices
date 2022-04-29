@@ -1,7 +1,7 @@
 # Overview
 
-- Paper Title: Incremental OTA Update for Deep Learning Powered Energy Harvesting IoT Devices
-- Conference: DATE 2022
+- Paper Title: An Intermittent OTA Approach to Update the DL Weights on Energy Harvesting Devices
+- Conference: ISQED 2022
 
 
 ## Hardware Requirements
